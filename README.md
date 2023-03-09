@@ -47,3 +47,16 @@ The input file consists of a sequence of lines, each of which has a command. For
 **pushTransform** Push the current modeling transform on the stack.
 
 **popTransform** Pop the current transform from the stack as in OpenGL. The sequence of popTransform and pushTransform can be used if desired before every primitive to reset the transformation (assuming the initial camera transformation is on the stack as discussed above).
+
+**directional x y z r g b** The direction to the light source, and the color, as in OpenGL. 
+
+**point x y z r g b** The location of a point source and the color, as in OpenGL. 
+
+**attenuation const linear quadratic** Sets the constant, linear and quadratic attenuations (default 1,0,0) as in OpenGL. By default there is no attenuation (the constant term is 1, linear and quadratic are 0; that's what we mean by 1,0,0). 
+
+**ambient r g b** The global ambient color to be added for each object (default is .2,.2,.2).
+
+**diffuse r g b** specifies the diffuse color of the surface.
+**specular r g b** specifies the specular color of the surface.
+**shininess s** specifies the shininess of the surface.
+**emission r g b** gives the emissive color of the surface.
