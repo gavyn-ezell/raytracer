@@ -55,6 +55,10 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "scene2.test"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "scene3.test"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

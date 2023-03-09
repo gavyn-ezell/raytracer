@@ -88,9 +88,18 @@ void Sphere::calculateForT(float a, float b, float c, float discriminant, float 
 
 void Sphere::sphereIntersection(float &tRef , Ray * currRay, glm::vec3 & specificAmbientRef) {
     
-    //transform ray  by inverse piazza post
-    //glm::vec3 rayvector = inverse(this.transformation);
-    float a,b,c, discriminant ;
+    //transform ray  by inverse transformation of the sphere FIRST
+    //transform the origin point, 1 as homogenous w
+    glm::vec3 originalRayStart = currRay->rayStart;
+    glm::vec3 originalRayVec = currRay->rayVec;
+    
+    glm::vec4 newStart = glm::inverse(this->transformation) * glm::vec4(currRay->rayStart, 1.0f);
+    glm::vec4 newVec = glm::inverse(this->transformation) * glm::vec4(currRay->rayVec, 0.0f);
+    
+    currRay->rayStart = glm::vec3(newStart.x / newStart.w, newStart.y / newStart.w, newStart.z / newStart.w);
+    currRay->rayVec = glm::vec3(newVec.x, newVec.y, newVec.z);
+
+    float a,b,c, discriminant;
     
     a = float(glm::dot(currRay->rayVec, currRay->rayVec));
     b = float(glm::dot( currRay->rayVec + currRay->rayVec, currRay->rayStart - this->spherePos));
@@ -98,6 +107,10 @@ void Sphere::sphereIntersection(float &tRef , Ray * currRay, glm::vec3 & specifi
     discriminant = sqrt(b*b - 4.0f*a*c);
     
     calculateForT(a, b, c, discriminant, tRef, specificAmbientRef);
+    
+    //put ray back to original form
+    currRay->rayStart = originalRayStart;
+    currRay->rayVec = originalRayVec;
     return;
     
     

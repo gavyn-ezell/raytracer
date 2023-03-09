@@ -2,7 +2,6 @@
 //  readfile.cpp
 //  HW4
 //
-
 #include "readfile.h"
 #include <iostream>
 #include <string>
@@ -154,22 +153,10 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                      }
                      */
                 }
-                /*
-                 else if (cmd == "size") {
-                 validinput = readvals(s,2,values);
-                 if (validinput) {
-                 w = (int) values[0]; h = (int) values[1];
-                 }
-                 */
                 else if (cmd == "camera") {
                     validinput = readvals(s,10,values); // 10 values eye cen up fov
                     if (validinput) {
                         
-                        // YOUR CODE FOR HW 2 HERE
-                        // Use all of values[0...9]
-                        // You may need to use the upvector fn in Transform.cpp
-                        // to set up correctly.
-                        // Set eyeinit upinit center fovy in variables.h
                         for (int i = 0; i < 10; i++) {
                             values[i] = float(values[i]);
                         }
@@ -221,11 +208,23 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                     //MAKE TRIANGLE OBJECT
                     validinput = readvals(s, 3, values);
                     if (validinput) {
-                        glm::vec3 vA = *(vertices.begin() + values[0]);
-                        glm::vec3 vB = *(vertices.begin() + values[1]);
-                        glm::vec3 vC = *(vertices.begin() + values[2]);
                         
-                        Triangle *newTriangle = new Triangle(vA, vB, vC, runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top());
+                        //set up vertices in homogenous
+                        glm::vec4 vA = glm::vec4(*(vertices.begin() + values[0]), 1.0f);
+                        glm::vec4 vB = glm::vec4(*(vertices.begin() + values[1]), 1.0f);
+                        glm::vec4 vC = glm::vec4(*(vertices.begin() + values[2]), 1.0f);
+                        
+                        vA = transfstack.top() * vA;
+                        vB = transfstack.top() * vB;
+                        vC = transfstack.top() * vC;
+                        
+                        glm::vec3 finalA = glm::vec3(vA.x / vA.w, vA.y / vA.w, vA.z / vA.w);
+                        glm::vec3 finalB = glm::vec3(vB.x / vB.w, vB.y / vB.w, vB.z / vB.w);
+                        glm::vec3 finalC = glm::vec3(vC.x / vC.w, vC.y / vC.w, vC.z / vC.w);
+                        
+                        
+                        //triangle is made after transforming points
+                        Triangle *newTriangle = new Triangle(finalA, finalB, finalC, runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top());
                         
                         triangles->push_back(newTriangle);
                         

@@ -19,7 +19,7 @@ Camera *mainCamera = new Camera();
 //we use two vectors 
 vector<Sphere*> *spheres = new vector<Sphere*>();
 vector<Triangle*> *triangles = new vector<Triangle*>();
-
+//star
 int imgWidth;
 int imgHeight;
 int &width = imgWidth;
