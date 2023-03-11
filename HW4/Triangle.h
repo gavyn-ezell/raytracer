@@ -2,12 +2,12 @@
 //  Triangle.h
 //  HW4
 //
-//
 #pragma once
 
 #include "glm/glm.hpp"
 #include "Ray.h"
-class Triangle {
+#include "Primitive.h"
+class Triangle : public Primitive {
 public:
     //values by definition
     glm::vec3 vA;
@@ -15,16 +15,10 @@ public:
     glm::vec3 vC;
     glm::vec3 triangleNorm;
     
-    //values of coloring, lighting, transformation
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    glm::vec3 emission;
-    float shininess;
-    glm::mat4 transformation;
     
     Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 emission, float shininess, glm::mat4 transformation);
-    void triangleIntersection(float &tRef, Ray * currRay, glm::vec3 &specificAmbientRef);
-    ~Triangle();
+    //void triangleIntersection(float &tRef, Ray * currRay, glm::vec3 &specificAmbientRef);
+    void calculateIntersection(float &tRef, Ray * currRay);
+    virtual ~Triangle();
 };
 

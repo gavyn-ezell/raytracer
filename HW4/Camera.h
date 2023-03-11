@@ -18,6 +18,7 @@ class Camera {
         float fovx;
         Camera();
         void setCamera(glm::vec3 cameraPos, glm::vec3 lookAtPos, glm::vec3 upVec, float fovy, float fovx);
+        //void setCamera(glm::vec3 cameraPos, glm::vec3 lookAtPos, glm::vec3 upVec, double fovy, double fovx);
         ~Camera();
     
     

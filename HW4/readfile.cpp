@@ -26,7 +26,8 @@ bool readvals(std::stringstream &s, const int numvals, float* values)
     }
     return true;
 }
-void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Sphere*> *spheres, std::vector<Triangle*> *triangles)
+//OLD: void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Sphere*> *spheres, std::vector<Triangle*> *triangles)
+void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Primitive*> *primitives)
 {
     //starts the readfile
     std::string str, cmd;
@@ -48,7 +49,7 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
     
     if (in.is_open()) {
         std::stack<glm::mat4> transfstack;
-        transfstack.push(glm::mat4(1.0));
+        transfstack.push(glm::mat4(1.0f));
         
         
         getline (in, str);
@@ -116,42 +117,38 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                     }
                 }
                 else if (cmd == "diffuse") {
-                    /*
                      validinput = readvals(s, 3, values); // colors
                      if (validinput) {
-                     runningDiffuse.x = values[0];
-                     runningDiffuse.y = values[1];
-                     runningDiffuse.z = values[2];
+                         runningDiffuse.x = float(values[0]);
+                         runningDiffuse.y = float(values[1]);
+                         runningDiffuse.z = float(values[2]);
                      }
-                     */
                 }
                 else if (cmd == "specular") {
-                    /*
                      validinput = readvals(s, 3, values); // colors
                      if (validinput) {
-                     runningSpecular.x = values[0];
-                     runningSpecular.y = values[1];
-                     runningSpecular.z = values[2];
+                         runningSpecular.x = float(values[0]);
+                         runningSpecular.y = float(values[1]);
+                         runningSpecular.z = float(values[2]);
                      }
-                     */
                 }
                 else if (cmd == "emission") {
-                    /*
+
                      validinput = readvals(s, 3, values); // colors
                      if (validinput) {
-                     runningEmission.x = values[0];
-                     runningEmission.y = values[1];
-                     runningEmission.z = values[2];
+                         runningEmission.x = float(values[0]);
+                         runningEmission.y = float(values[1]);
+                         runningEmission.z = float(values[2]);
                      }
-                     */
+
                 }
                 else if (cmd == "shininess") {
-                    /*
+
                      validinput = readvals(s, 1, values);
                      if (validinput) {
-                     runningShininess = values[0];
+                         runningShininess = float(values[0]);
                      }
-                     */
+
                 }
                 else if (cmd == "camera") {
                     validinput = readvals(s,10,values); // 10 values eye cen up fov
@@ -165,7 +162,7 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                         glm::vec3 upVec = glm::vec3(values[6], values[7], values[8]);
                         float fovy = glm::radians(values[9]);
                         float aspect = float(width) / float(height);
-                        float fovx = 2.0f * glm::atan(glm::tan(fovy * 0.5f) * aspect);
+                        float fovx = 2.0 * glm::atan(glm::tan(fovy * 0.5) * aspect);
                         
                         mainCamera->setCamera(cameraPos, lookAtPos, upVec, fovy, fovx);
 
@@ -186,10 +183,10 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                     */
                     validinput = readvals(s, 4, values);
                     if (validinput) {
-                        glm::vec3 spherePos = glm::vec3(float(values[0]), float(values[1]), float(values[2]));
-                        float radius = float(values[3]);
-                        Sphere *newSphere = new Sphere(spherePos, radius, runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top());
-                        spheres->push_back(newSphere);
+                        glm::vec3 spherePos = glm::vec3(double(values[0]), double(values[1]), double(values[2]));
+                        double radius = double(values[3]);
+                        Primitive *newSphere = new Sphere(spherePos, radius, runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top());
+                        primitives->push_back(newSphere);
                     }
                 }
                 else if (cmd == "maxverts") {
@@ -201,7 +198,7 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                 else if (cmd == "vertex") {
                     validinput = readvals(s, 3, values);
                     if (validinput) {
-                        vertices.push_back(glm::vec3(float(values[0]), float(values[1]), float(values[2])));
+                        vertices.push_back(glm::vec3(double(values[0]), double(values[1]), double(values[2])));
                     }
                 }
                 else if (cmd == "tri") {
@@ -224,9 +221,9 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                         
                         
                         //triangle is made after transforming points
-                        Triangle *newTriangle = new Triangle(finalA, finalB, finalC, runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top());
+                        Primitive *newTriangle = new Triangle(finalA, finalB, finalC, runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top());
                         
-                        triangles->push_back(newTriangle);
+                        primitives->push_back(newTriangle);
                         
                     }
                     

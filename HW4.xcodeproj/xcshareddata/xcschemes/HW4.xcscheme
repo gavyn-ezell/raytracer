@@ -61,6 +61,10 @@
             argument = "scene3.test"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "scene1.test"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

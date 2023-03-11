@@ -1,7 +1,6 @@
 
 #include "Sphere.h"
 #include <algorithm>
-#include <iostream>
 // constructor for sphere
 
 Sphere::Sphere(glm::vec3 inputSpherePos, float radius, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 emission, float shininess, glm::mat4 transformation) {
@@ -16,7 +15,7 @@ Sphere::Sphere(glm::vec3 inputSpherePos, float radius, glm::vec3 ambient, glm::v
 }
 
 
-void Sphere::calculateForT(float a, float b, float c, float discriminant, float &tRef, glm::vec3 &specificAmbientRef) {
+void Sphere::calculateForT(float a, float b, float c, float discriminant, float &tRef) {
 
     //float realPart, imaginaryPart;
     float x1, x2;
@@ -34,13 +33,13 @@ void Sphere::calculateForT(float a, float b, float c, float discriminant, float 
             if (tRef == 0.0f) {
 
                 tRef = currRoot;
-                specificAmbientRef = 255.0f * this->ambient;
+                //primHolder = this;
             }
             //we HAVE assigned, check if found t is better
             else if (tRef > 0.0f && currRoot < tRef) {
 
                 tRef = currRoot;
-                specificAmbientRef = 255.0f * this->ambient;
+                //primHolder = dynamic_cast<Primitive*>(this);
             }
             else if (tRef > 0.0f && currRoot >= tRef) {
                 //don't reassign
@@ -54,12 +53,12 @@ void Sphere::calculateForT(float a, float b, float c, float discriminant, float 
             //we havent assigned yet, so assign
             if (tRef == 0.0f) {
                 tRef = currRoot;
-                specificAmbientRef = 255.0f * this->ambient;
+                //primHolder = dynamic_cast<Primitive*>(this);
             }
             //we HAVE assigned, check if found t is better
             else if (tRef > 0.0f && currRoot < tRef) {
                 tRef = currRoot;
-                specificAmbientRef = 255.0f * this->ambient;
+                //primHolder = dynamic_cast<Primitive*>(this);
             }
             else if (tRef > 0.0f && currRoot >= tRef) {
                 //don't reassign
@@ -86,7 +85,7 @@ void Sphere::calculateForT(float a, float b, float c, float discriminant, float 
 
  // intersection
 
-void Sphere::sphereIntersection(float &tRef , Ray * currRay, glm::vec3 & specificAmbientRef) {
+void Sphere::calculateIntersection(float &tRef , Ray * currRay) {
     
     //transform ray  by inverse transformation of the sphere FIRST
     //transform the origin point, 1 as homogenous w
@@ -103,10 +102,10 @@ void Sphere::sphereIntersection(float &tRef , Ray * currRay, glm::vec3 & specifi
     
     a = float(glm::dot(currRay->rayVec, currRay->rayVec));
     b = float(glm::dot( currRay->rayVec + currRay->rayVec, currRay->rayStart - this->spherePos));
-    c = float(glm::dot(currRay->rayStart - this->spherePos, currRay->rayStart - this->spherePos)) - this->radius * this->radius;
+    c = float(glm::dot(currRay->rayStart - this->spherePos, currRay->rayStart - this->spherePos) - this->radius * this->radius);
     discriminant = sqrt(b*b - 4.0f*a*c);
     
-    calculateForT(a, b, c, discriminant, tRef, specificAmbientRef);
+    calculateForT(a, b, c, discriminant, tRef);
     
     //put ray back to original form
     currRay->rayStart = originalRayStart;
@@ -115,6 +114,4 @@ void Sphere::sphereIntersection(float &tRef , Ray * currRay, glm::vec3 & specifi
     
     
 }
-Sphere::~Sphere() {
-    
-}
+Sphere::~Sphere() {};

@@ -9,17 +9,19 @@
 #include <cstdio>
 #include <vector>
 #include "readfile.h"
+#include "Primitive.h"
 #include "Sphere.h"
 #include "Triangle.h"
+//#include "Light.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
 using namespace std;
 
 Camera *mainCamera = new Camera();
-//we use two vectors 
-vector<Sphere*> *spheres = new vector<Sphere*>();
-vector<Triangle*> *triangles = new vector<Triangle*>();
-//star
+
+//we use one vector to hold all primitives
+vector<Primitive*> *primitives = new vector<Primitive*>();
+
 int imgWidth;
 int imgHeight;
 int &width = imgWidth;
@@ -28,47 +30,42 @@ int &height = imgHeight;
 int main(int argc, const char * argv[]) {
 
     string filename = argv[1];
-    readfile(filename, width, height, mainCamera, spheres, triangles);
-    
-    //we make Ray
-    //pick a primitive
-    //calculate intersection
+    readfile(filename, width, height, mainCamera, primitives);
+
     glm::vec3 finalImage[imgHeight][imgWidth];
     
     float t;
     float &tRef = t;
+ 
+
     Ray *rayHolder = new Ray();
-    
-    glm::vec3 specificAmbient;
-    glm::vec3 &specificAmbientRef = specificAmbient;
+    Primitive * primHolder;
     
     for (int i = 0; i < imgHeight; i++) {
         for (int j = 0; j < imgWidth; j++) {
+            
             tRef = 0.0f;
             
             rayHolder->setRay(float(i) + 0.5f, float(j) + 0.5f, float(imgWidth), float(imgHeight), mainCamera);
             
-      
-            //checking all Sphere primitives
-            for (vector<Sphere*>::iterator it = spheres->begin(); it != spheres->end(); it++) {
-                (*it)->sphereIntersection(tRef, rayHolder, specificAmbientRef);
+            //loop thru primitives and make calculations
+            
+            primHolder = NULL;
+            for (vector<Primitive*>::iterator it = primitives->begin(); it != primitives->end(); it++) {
+                float original = tRef;
+                (*it)->calculateIntersection(tRef, rayHolder);
+                if (tRef != original) {
+                    primHolder = (*it);
+                }
                 
             }
             
-            //checking all Triangle primitives
-            for (vector<Triangle*>::iterator it = triangles->begin(); it != triangles->end(); it++) {
-                (*it)->triangleIntersection(tRef, rayHolder, specificAmbientRef);
-                
-            }
-            
-            
-            //if no intersection
+            //if we found a valid t value for our Ray, then color
             if (t == 0.0f) {
-                //cout << "black\n";
                 finalImage[i][j] = glm::vec3(0.0f, 0.0f, 0.0f);
             }
             else if (t > 0.0f) {
-                finalImage[i][j] = specificAmbient;
+                finalImage[i][j] = 255.0f * primHolder->ambient;
             }
         }
     }
@@ -80,23 +77,16 @@ int main(int argc, const char * argv[]) {
     
     //DEALLOCATION AND MEMORY CLEANING BEFORE FILE END
     delete mainCamera;
-    if (spheres->size() > 0) {
-        for (vector<Sphere*>::iterator it = spheres->begin(); it != spheres->end(); it++) {
+
+    if (primitives->size() > 0) {
+        for (vector<Primitive*>::iterator it = primitives->begin(); it != primitives->end(); it++) {
             delete (*it);
         }
     }
-    
-    delete spheres;
-    
-    if (triangles->size() > 0) {
-        for (vector<Triangle*>::iterator it = triangles->begin(); it != triangles->end(); it++) {
-            delete (*it);
-        }
-    }
-    delete triangles;
+    delete primitives;
     delete rayHolder;
 
-    //ACTUAL PPM CREATION
+    //ACTUAL PPM CREATION, using final image values, 2d array
     ofstream MyFile("result.ppm");
     if (MyFile.is_open()) {
         MyFile << "P3 " << imgWidth << " " << imgHeight << " 255\n";

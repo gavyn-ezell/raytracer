@@ -13,6 +13,7 @@ class Ray {
     glm::vec3 rayStart;
     glm::vec3 rayVec;
     Ray();
+    //void setRay(float i, float j, float width, float height, Camera * mainCamera);
     void setRay(float i, float j, float width, float height, Camera * mainCamera);
     ~Ray();
 };

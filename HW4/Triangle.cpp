@@ -1,6 +1,5 @@
 //
-//  Triangle.cpp
-//  HW4
+//  Triangle Class Implementation
 //
 
 #include "Triangle.h"
@@ -22,16 +21,14 @@ Triangle::Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC, glm::vec3 ambient, 
     
 }
 
-void Triangle::triangleIntersection(float &tRef, Ray * currRay, glm::vec3 & specificAmbientRef) {
+void Triangle::calculateIntersection(float &tRef, Ray * currRay) {
     if (glm::dot(currRay->rayVec, this->triangleNorm) == 0.0f) {
         //no intersection to plane, just return
-        //std::cout << float(glm::dot(currRay->rayVec, this->triangleNorm)) << "<-- P1 dot n\n";
         return;
     }
     //intersection exists. is it in triangle though?
     
     float currT = ( glm::dot(this->vA, this->triangleNorm) - glm::dot(currRay->rayStart, this->triangleNorm)) / glm::dot(currRay->rayVec, this->triangleNorm);
-    //std::cout << currT << "<--currT\n";
     
     if (currT <= 0.0f || (tRef > 0.0f && currT >= tRef)) {
         return;
@@ -63,15 +60,12 @@ void Triangle::triangleIntersection(float &tRef, Ray * currRay, glm::vec3 & spec
         
         if (beta >= 0.0f && beta <= 1.0f && gamma >= 0.0f && gamma <= 1.0f && beta + gamma <= 1.0f) {
             if (((currT < tRef) && (tRef > 0.0f)) || tRef == 0.0f) {
-                //std::cout << "CHANGING " << tRef << " to " << currT << "\n";
                 tRef = currT;
-                specificAmbientRef = 255.0f * this->ambient;
+                //primHolder = dynamic_cast<Primitive*>(this);
             }
         }
         return;
     }
     
 }
-Triangle::~Triangle() {
-    
-}
+Triangle::~Triangle() {};
