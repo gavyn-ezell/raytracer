@@ -10,7 +10,7 @@ Triangle::Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC, glm::vec3 ambient, 
     this->vA = vA;
     this->vB = vB;
     this->vC = vC;
-    this->triangleNorm = glm::normalize(glm::cross(vC - vA, vB - vA));
+    this->triangleNorm = glm::normalize(glm::cross(vB - vA, vC-vA));
     
     this->ambient = ambient;
     this->diffuse = diffuse;
@@ -61,7 +61,6 @@ void Triangle::calculateIntersection(float &tRef, Ray * currRay) {
         if (beta >= 0.0f && beta <= 1.0f && gamma >= 0.0f && gamma <= 1.0f && beta + gamma <= 1.0f) {
             if (((currT < tRef) && (tRef > 0.0f)) || tRef == 0.0f) {
                 tRef = currT;
-                //primHolder = dynamic_cast<Primitive*>(this);
             }
         }
         return;

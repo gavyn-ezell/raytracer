@@ -6,6 +6,9 @@
 
 #include "glm/glm.hpp"
 #include "Ray.h"
+#include "Light.h"
+#include <vector>
+
 class Primitive
 {
     public:
@@ -17,4 +20,6 @@ class Primitive
         glm::mat4 transformation;
         virtual ~Primitive() {}
         virtual void calculateIntersection(float &tRef, Ray * currRay) = 0;
+        //virtual bool isLit(Ray shadowRay, std::vector<Primitive*> * primitives, Light * currLight);
+        //virtual void calculateLighting(glm::vec3 pointOfIntersection, std::vector<Light*> *lights);
 };

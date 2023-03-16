@@ -8,9 +8,6 @@
 #include <stack>
 #include <fstream>
 #include <sstream>
-#include <vector>
-#include "Camera.h"
-#include "Triangle.h"
 #include "glm/glm.hpp"
 
 // Function to read the input data values
@@ -26,8 +23,8 @@ bool readvals(std::stringstream &s, const int numvals, float* values)
     }
     return true;
 }
-//OLD: void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Sphere*> *spheres, std::vector<Triangle*> *triangles)
-void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Primitive*> *primitives)
+
+void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, glm::vec3 & attenuationRef, int & maxdepthRef)
 {
     //starts the readfile
     std::string str, cmd;
@@ -75,31 +72,53 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                     }
                     
                 }
-                else if (cmd == "light") {
+                else if (cmd == "output") {
                     /*
-                     if (numused == numLights) { // No more Lights
-                     cerr << "Reached Maximum Number of Lights " << numused << " Will ignore further lights\n";
-                     } else {
-                     validinput = readvals(s, 8, values); // Position/color for lts.
-                     if (validinput) {
-                     
-                     // YOUR CODE FOR HW 2 HERE.
-                     // Note that values[0...7] shows the read in values
-                     // Make use of lightposn[] and lightcolor[] arrays in variables.h
-                     // Those arrays can then be used in display too.
-                     
-                     //TODO: ADD values[0:4] to lightposn[] and values[4:8] to lightcolor
-                     for (int i = 0; i < 4; i++) {
-                     //starting point in lightposn array given by numused * 4
-                     lightposn[numused*4 + i] = values[i];
-                     }
-                     for (int i = 4; i < 8; i++) {
-                     lightcolor[numused*4 + i-4] = values[i];
-                     }
-                     ++numused;
-                     }
-                     }
-                     */
+                    validinput = readvals(s, 2, values);
+                    
+                    if (validinput) {
+                        width = values[0];
+                        height = values[1];
+                    }
+                    */
+                }
+                else if (cmd == "maxdepth") {
+                    validinput = readvals(s, 1, values);
+                    
+                    if (validinput) {
+                        maxdepthRef = values[0];
+                    }
+                }
+                else if (cmd == "directional") {
+                    validinput = readvals(s, 6, values);
+                    
+                    if (validinput) {
+                        glm::vec3 lightPos = glm::vec3(float(values[0]), float(values[1]), float(values[2]));
+                        glm::vec3 lightColor = glm::vec3(float(values[3]), float(values[4]), float(values[5]));
+                        
+                        Light* newLight = new Light(true, lightPos, lightColor);
+                        lights->push_back(newLight);
+                    }
+                }
+                
+                else if (cmd == "point") {
+                    validinput = readvals(s, 6, values);
+                    
+                    if (validinput) {
+                        glm::vec3 lightPos = glm::vec3(float(values[0]), float(values[1]), float(values[2]));
+                        glm::vec3 lightColor = glm::vec3(float(values[3]), float(values[4]), float(values[5]));
+                        
+                        Light* newLight = new Light(false, lightPos, lightColor);
+                        lights->push_back(newLight);
+                    }
+                }
+                else if (cmd == "attenutation") {
+                    validinput = readvals(s, 3, values);
+                    
+                    if (validinput) {
+                        attenuationRef = glm::vec3(float(values[0]), float(values[1]), float(values[2]));
+                    }
+                    
                 }
                 
                 // Material Commands
@@ -184,7 +203,7 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                     validinput = readvals(s, 4, values);
                     if (validinput) {
                         glm::vec3 spherePos = glm::vec3(double(values[0]), double(values[1]), double(values[2]));
-                        double radius = double(values[3]);
+                        float radius = float(values[3]);
                         Primitive *newSphere = new Sphere(spherePos, radius, runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top());
                         primitives->push_back(newSphere);
                     }

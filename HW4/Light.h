@@ -9,8 +9,10 @@
 #include "glm/glm.hpp"
  class Light{
     public:
-    glm::vec4 lightPos;
+    bool isDirectional;
+    //although named lightPos for "light position", can also just be vec for directional lights
+    glm::vec3 lightPos;
     glm::vec3 lightColor;
-    Light(glm::vec4 lightPos, glm::vec3 lightColor);
+    Light(bool isDirectional, glm::vec3 lightPos, glm::vec3 lightColor);
     ~Light();
 };

@@ -73,10 +73,6 @@ void Sphere::calculateForT(float a, float b, float c, float discriminant, float 
     }
     //no intersection, ignore
     else {
-        /*
-        realPart = -b/(2*a);
-        imaginaryPart = sqrt(-discriminant)/(2*a);
-        */
         return;
     }
     return;
@@ -100,10 +96,10 @@ void Sphere::calculateIntersection(float &tRef , Ray * currRay) {
 
     float a,b,c, discriminant;
     
-    a = float(glm::dot(currRay->rayVec, currRay->rayVec));
-    b = float(glm::dot( currRay->rayVec + currRay->rayVec, currRay->rayStart - this->spherePos));
-    c = float(glm::dot(currRay->rayStart - this->spherePos, currRay->rayStart - this->spherePos) - this->radius * this->radius);
-    discriminant = sqrt(b*b - 4.0f*a*c);
+    a = glm::dot(currRay->rayVec, currRay->rayVec);
+    b = glm::dot( currRay->rayVec + currRay->rayVec, currRay->rayStart - this->spherePos);
+    c = glm::dot(currRay->rayStart - this->spherePos, currRay->rayStart - this->spherePos) - pow(this->radius, 2.0f);
+    discriminant = b*b - 4.0f*a*c;
     
     calculateForT(a, b, c, discriminant, tRef);
     

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		860031C129C102C800A672BC /* recursion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 860031C029C102C800A672BC /* recursion.cpp */; };
 		862AE25C29B42EE40001B6F8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 862AE25B29B42EE40001B6F8 /* main.cpp */; };
 		86D844A829BC593500F7AC26 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 86D844A729BC593500F7AC26 /* Light.cpp */; };
 		86EF3CFF29B4951C0025F5B0 /* readfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 86EF3CFE29B4951C0025F5B0 /* readfile.cpp */; };
@@ -29,6 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		860031C029C102C800A672BC /* recursion.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = recursion.cpp; sourceTree = "<group>"; };
 		862AE25829B42EE40001B6F8 /* HW4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HW4; sourceTree = BUILT_PRODUCTS_DIR; };
 		862AE25B29B42EE40001B6F8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		862AE26329B432830001B6F8 /* glm */ = {isa = PBXFileReference; lastKnownFileType = folder; name = glm; path = /Users/gavyne/Desktop/CSE_167/HW4/HW4/glm; sourceTree = "<absolute>"; };
@@ -37,6 +39,7 @@
 		86D0A51229BBDBA1006AF5D9 /* Light.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
 		86D844A729BC593500F7AC26 /* Light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
 		86D844A929BC5F7200F7AC26 /* Primitive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Primitive.h; sourceTree = "<group>"; };
+		86EDFD9729C03A9B00CA84E7 /* recursion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = recursion.h; sourceTree = "<group>"; };
 		86EF3CFC29B494190025F5B0 /* readfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = readfile.h; sourceTree = "<group>"; };
 		86EF3CFE29B4951C0025F5B0 /* readfile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = readfile.cpp; sourceTree = "<group>"; };
 		86EF3D0029B515C10025F5B0 /* Sphere.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sphere.cpp; sourceTree = "<group>"; };
@@ -84,6 +87,7 @@
 				8639C59629B7F77C00B4FCD7 /* scene2.test */,
 				862AE26329B432830001B6F8 /* glm */,
 				862AE25B29B42EE40001B6F8 /* main.cpp */,
+				86EDFD9729C03A9B00CA84E7 /* recursion.h */,
 				86EF3CFC29B494190025F5B0 /* readfile.h */,
 				86EF3CFE29B4951C0025F5B0 /* readfile.cpp */,
 				86EF3D0029B515C10025F5B0 /* Sphere.cpp */,
@@ -97,6 +101,7 @@
 				86D0A51229BBDBA1006AF5D9 /* Light.h */,
 				86D844A729BC593500F7AC26 /* Light.cpp */,
 				86D844A929BC5F7200F7AC26 /* Primitive.h */,
+				860031C029C102C800A672BC /* recursion.cpp */,
 			);
 			path = HW4;
 			sourceTree = "<group>";
@@ -165,6 +170,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				860031C129C102C800A672BC /* recursion.cpp in Sources */,
 				86D844A829BC593500F7AC26 /* Light.cpp in Sources */,
 				86EF3D0B29B53D960025F5B0 /* Camera.cpp in Sources */,
 				86EF3CFF29B4951C0025F5B0 /* readfile.cpp in Sources */,

@@ -5,7 +5,10 @@
 
 #include "Light.h"
 
-Light::Light(glm::vec4 lightPos, glm::vec3 lightColor) {
+Light::Light(bool isDirectional, glm::vec3 lightPos, glm::vec3 lightColor) {
+    this->isDirectional = isDirectional;
     this->lightPos = lightPos;
     this->lightColor = lightColor;
+}
+Light::~Light() {
 }

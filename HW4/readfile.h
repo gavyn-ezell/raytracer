@@ -2,8 +2,6 @@
 //  readfile.h
 //  HW4
 //
-//  Created by Gavyn Ezell on 3/5/23.
-//
 
 #pragma once
 #include <vector>
@@ -12,6 +10,7 @@
 #include "Primitive.h"
 #include "Sphere.h"
 #include "Triangle.h"
+#include "Light.h"
 
 // goes through our .test file, and properly creates objects/saves data for scene
 /*
@@ -29,4 +28,4 @@
 */
 
  //OLD: void readfile(std::string filename, int & width, int & height, Camera * mainCamera, std::vector<Sphere*> *spheres, std::vector<Triangle*> *Triangle);
-void readfile(std::string filename, int & width, int & height, Camera * mainCamera, std::vector<Primitive*> *primitives);
+void readfile(std::string filename, int & width, int & height, Camera * mainCamera, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, glm::vec3 & attenuationRef, int & maxdepthRef);
