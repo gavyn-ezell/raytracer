@@ -15,7 +15,7 @@ Sphere::Sphere(glm::vec3 inputSpherePos, float radius, glm::vec3 ambient, glm::v
 }
 
 
-void Sphere::calculateForT(float a, float b, float c, float discriminant, float &tRef) {
+void Sphere::calculateForT(float a, float b, float c, float discriminant, float &tRef, Ray * currRay) {
 
     //float realPart, imaginaryPart;
     float x1, x2;
@@ -28,6 +28,21 @@ void Sphere::calculateForT(float a, float b, float c, float discriminant, float 
         if (x1 > 0.0f && x2 > 0.0f) {
             //FOR NOW DO NOT CARE ABOUT ACTUAL INTERSECTION POINT, JUST RETURN TRUE
             float currRoot = std::min(x1, x2);
+        
+            //this currRoot, or t, is in the frame of "transformed Ray" and "untransformed Sphere",
+            //however, we only want to replace t in the "untransformed ray" and "transformed Sphere"
+            
+            //1. convert point into "untransformed ray" and "transformed Sphere" space
+            //2. find t value from "untransformed ray" and "transformed Sphere" space
+            //3. THIS is the t value we want to compare
+            /*
+            glm::vec3 transformedRayPoint = currRay->rayStart + currRoot * currRay->rayVec;
+            
+            glm::vec4 untransformedRayPointHom = this->transformation * glm::vec4(transformedRayPoint, 1.0f);
+            
+            glm::vec3 untransformedRayPoint =  glm::vec3(untransformedRayPointHom.x / untransformedRayPointHom.w,  untransformedRayPointHom.y / untransformedRayPointHom.w, untransformedRayPointHom.z / untransformedRayPointHom.w);
+            */
+            
             
             //we havent assigned yet, so assign
             if (tRef == 0.0f) {
@@ -41,7 +56,7 @@ void Sphere::calculateForT(float a, float b, float c, float discriminant, float 
                 tRef = currRoot;
                 //primHolder = dynamic_cast<Primitive*>(this);
             }
-            else if (tRef > 0.0f && currRoot >= tRef) {
+            else if (tRef > 0.0f && currRoot > tRef) {
                 //don't reassign
             }
             return;
@@ -101,7 +116,7 @@ void Sphere::calculateIntersection(float &tRef , Ray * currRay) {
     c = glm::dot(currRay->rayStart - this->spherePos, currRay->rayStart - this->spherePos) - pow(this->radius, 2.0f);
     discriminant = b*b - 4.0f*a*c;
     
-    calculateForT(a, b, c, discriminant, tRef);
+    calculateForT(a, b, c, discriminant, tRef, currRay);
     
     //put ray back to original form
     currRay->rayStart = originalRayStart;

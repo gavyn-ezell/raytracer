@@ -112,7 +112,7 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                         lights->push_back(newLight);
                     }
                 }
-                else if (cmd == "attenutation") {
+                else if (cmd == "attenuation") {
                     validinput = readvals(s, 3, values);
                     
                     if (validinput) {

@@ -7,13 +7,14 @@
 
 #include "recursion.h"
 #include <iostream>
-glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRayHolder, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, glm::vec3 attenuation, int maxdepth)
+glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRayHolder, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, Camera * mainCamera, glm::vec3 attenuation, int maxdepth)
 {
 /*
 1. FIND INTERSECTION IF EXISTS
 2. IF IT EXISTS, DO I = A + E + SUMMATION LIGHT CALCULATIONS!
 3. RECURSIVE CALL: RETURN COLOR + S
 */
+    std::cout << "GLOBAL ATTENUATION: " << attenuation.x << " " << attenuation.y << " " << attenuation.z << "\n";
     if (currdepth == maxdepth + 1) {
         //std::cout << "RECURSION DONE\n";
         return glm::vec3(0.0f,0.0f,0.0f);
@@ -52,8 +53,8 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
         glm::vec3 originalStart = mirrorRayHolder->rayStart;
         glm::vec3 originalVec = mirrorRayHolder->rayVec;
         
-        glm::vec4 newStart = glm::inverse(primHolder->transformation) * glm::vec4(mirrorRayHolder->rayStart, 1.0f);
-        glm::vec4 newVec = glm::inverse(primHolder->transformation) * glm::vec4(mirrorRayHolder->rayVec, 0.0f);
+        glm::vec4 newStart = glm::inverse(currSphere->transformation) * glm::vec4(mirrorRayHolder->rayStart, 1.0f);
+        glm::vec4 newVec = glm::inverse(currSphere->transformation) * glm::vec4(mirrorRayHolder->rayVec, 0.0f);
         
         mirrorRayHolder->rayStart = glm::vec3(newStart.x / newStart.w, newStart.y / newStart.w, newStart.z / newStart.w);
         mirrorRayHolder->rayVec = glm::vec3(newVec.x, newVec.y, newVec.z);
@@ -66,7 +67,7 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
         // inverse(transpose(M)) * N for normal
         N = glm::normalize(glm::inverse(glm::transpose(glm::mat3(currSphere->transformation))) * N);
         
-        glm::vec4 intersectionPointHom = primHolder->transformation * glm::vec4(transformedIntersectionPoint, 1.0f);
+        glm::vec4 intersectionPointHom = currSphere->transformation * glm::vec4(transformedIntersectionPoint, 1.0f);
         
         intersectionPoint = glm::vec3(intersectionPointHom.x / intersectionPointHom.w, intersectionPointHom.y / intersectionPointHom.w, intersectionPointHom.z / intersectionPointHom.w);
        
@@ -146,16 +147,15 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
             }
             
             H = glm::normalize(L + glm::normalize(mirrorRayHolder->rayStart - shadowRayHolder->rayStart));
-            
-            
-            glm::vec3 rest = primHolder->diffuse * glm::max(glm::dot(N, L), 0.0f) + primHolder->specular * pow(glm::max(glm::dot(N, H), 0.0f), float(primHolder->shininess));
+            //H = glm::normalize(L + glm::normalize(mainCamera->cameraPos - shadowRayHolder->rayStart));
             
             float denom = currAttenuation.x + currAttenuation.y * r + currAttenuation.z * pow(r, 2.0f);
             
-
-            glm::vec3 added = ((*it)->lightColor / denom) * rest;
-
-            finalColor += added;
+            glm::vec3 lightColor = ((*it)->lightColor / denom);
+            
+            glm::vec3 rest = lightColor * primHolder->diffuse * glm::max(glm::dot(N, L), 0.0f) + lightColor * primHolder->specular * pow(glm::max(glm::dot(N, H), 0.0f), float(primHolder->shininess));
+            
+            finalColor += rest;
             
         }
      
@@ -170,7 +170,7 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
         
         mirrorRayHolder->setMirrorRay(shadowRayHolder->rayStart, mirrorVec);
 
-        glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(currdepth+1, mirrorRayHolder, shadowRayHolder, primitives, lights, attenuation, maxdepth);
+        glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(currdepth+1, mirrorRayHolder, shadowRayHolder, primitives, lights, mainCamera, attenuation, maxdepth);
         
         return finalColor + recursiveColor;
     }

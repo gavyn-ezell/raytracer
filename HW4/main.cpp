@@ -60,6 +60,8 @@ int main(int argc, const char * argv[]) {
     Ray * shadowRayHolder = new Ray();
     Ray * mirrorRayHolder = new Ray();
     
+    //cout << "GLOBAL ATTENUATION: " << attenuation.x << " " << attenuation.y << " " << attenuation.z << "\n";
+    
     
     for (int i = 0; i < imgHeight; i++) {
         for (int j = 0; j < imgWidth; j++) {
@@ -204,19 +206,18 @@ int main(int argc, const char * argv[]) {
                         
                         
                         H = glm::normalize(L + glm::normalize(mainCamera->cameraPos - shadowRayHolder->rayStart));
-                        /*
-                        if (glm::dot(N, H) <= 0.0f) {
-                            cout << "AAAGH\n";
-                        }
-                         */
-                        glm::vec3 rest = primHolder->diffuse * glm::max(glm::dot(N, L), 0.0f) + primHolder->specular * pow(glm::max(glm::dot(N, H), 0.0f), float(primHolder->shininess));
-                        
+ 
                         float denom = currAttenuation.x + currAttenuation.y * r + currAttenuation.z * pow(r, 2.0f);
+                        glm::vec3 lightColor = ((*it)->lightColor / denom);
+                        
+                        glm::vec3 rest = lightColor * primHolder->diffuse * glm::max(glm::dot(N, L), 0.0f) + lightColor * primHolder->specular * pow(glm::max(glm::dot(N, H), 0.0f), float(primHolder->shininess));
+                        
+                        //float denom = currAttenuation.x + currAttenuation.y * r + currAttenuation.z * pow(r, 2.0f);
                         
 
-                        glm::vec3 added = ((*it)->lightColor / denom) * rest;
+                        //glm::vec3 added = ((*it)->lightColor / denom) * rest;
 
-                        finalColor += added;
+                        finalColor += rest;
                     }
                  
                     
@@ -224,19 +225,21 @@ int main(int argc, const char * argv[]) {
                 
                 //cout << "FINALCOLOR BEFORE RECURSION: " << finalColor.x << " " << finalColor.y << " " << finalColor.z << "\n";
                 //do a final recursive ray trace, only if specular component is nonzero in some color
+                
                 if (primHolder->specular.x != 0.0f || primHolder->specular.y != 0.0f  || primHolder->specular.z != 0.0f ) {
                     //calculate mirror ray
 
-                    glm::vec3 mirrorVec = rayHolder->rayVec - 2.0f * glm::dot(rayHolder->rayVec, N) * N;
+                    glm::vec3 mirrorVec = glm::normalize(rayHolder->rayVec) - 2.0f * glm::dot(glm::normalize(rayHolder->rayVec), N) * N;
                     mirrorVec = glm::normalize(mirrorVec);
                     
                     mirrorRayHolder->setMirrorRay(shadowRayHolder->rayStart, mirrorVec);
                     
-                    glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(1, mirrorRayHolder, shadowRayHolder, primitives, lights, attenuation, maxdepth);
+                    glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(1, mirrorRayHolder, shadowRayHolder, primitives, lights, mainCamera, attenuation, maxdepth);
                     
                     
                     finalColor = finalColor + recursiveColor;
                 }
+                
                 //cout << "FINALCOLOR AFTER RECURSION: " << finalColor.x << " " << finalColor.y << " " << finalColor.z << "\n\n";
                 finalColor = glm::vec3(clamp(finalColor.x,0.0f,1.0f), clamp(finalColor.y,0.0f,1.0f), clamp(finalColor.z, 0.0f,1.0f));
                 finalColor = 255.0f * finalColor;

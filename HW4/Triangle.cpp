@@ -11,6 +11,7 @@ Triangle::Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC, glm::vec3 ambient, 
     this->vB = vB;
     this->vC = vC;
     this->triangleNorm = glm::normalize(glm::cross(vB - vA, vC-vA));
+    //this->triangleNorm = glm::normalize(glm::cross(vC - vA, vB-vA));
     
     this->ambient = ambient;
     this->diffuse = diffuse;
