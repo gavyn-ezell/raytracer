@@ -63,11 +63,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "scene5.test"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "scene6.test"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "scene4-specular.test"

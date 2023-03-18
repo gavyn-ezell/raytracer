@@ -18,6 +18,6 @@ class Ray {
     //void setShadowRay(glm::vec3 intersectionPoint, glm::vec3 lightPos);
     void setMirrorRay(glm::vec3 rayStart, glm::vec3 rayVec);
     void setShadowRay(glm::vec3 intersectionPoint, Light* light, glm::vec3 N);
-    void setRay(float i, float j, float width, float height, Camera * mainCamera);
+    void setPixelRay(float i, float j, float width, float height, Camera * mainCamera);
     ~Ray();
 };

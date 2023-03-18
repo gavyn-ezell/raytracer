@@ -1,6 +1,5 @@
 //
 // RAY TRACER ASSIGNMENT MAIN FILE
-// AUTHORS: GAVYN EZELL AND CHAEYEON PARK
 //
 
 #include <iostream>
@@ -43,151 +42,100 @@ int &height = imgHeight;
 int main(int argc, const char * argv[]) {
     
      
-
+    int totalBlocked = 0;
     string filename = argv[1];
     
     readfile(filename, width, height, mainCamera, primitives, lights, attenuationRef, maxdepthRef);
 
     glm::vec3 finalImage[imgHeight][imgWidth];
     
-    float t;
-    float &tRef = t;
- 
+    //setting up parameters for intersection testing
     
-
+    //this t value keeps track of the lowest t on our cameraRay
+    //we simply want the lowest, non-zero t value
+    //float t;
+    //float &tRef = t;
+ 
+    //these will simply hold our ray's
+    //1. rayHolder holds rays emitted from our camera
+    //2. shadowRayHolder will simply hold shadow Rays
+    //3. mirroRayHolder will simply hold our reflect/mirror rays as we recursively reflect
     Ray * rayHolder = new Ray();
-    Primitive * primHolder;
     Ray * shadowRayHolder = new Ray();
     Ray * mirrorRayHolder = new Ray();
     
-    //cout << "GLOBAL ATTENUATION: " << attenuation.x << " " << attenuation.y << " " << attenuation.z << "\n";
+    //simple pointer for grabbing our closest intersected primitive, if there is one that is
+    Primitive * primHolder;
+    tuple<float, glm::vec3, glm::vec3> intersectionTracker = make_tuple(0.0f, glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f));
+    tuple<float, glm::vec3, glm::vec3> &intersectionTrackerRef = intersectionTracker;
+    
     
     
     for (int i = 0; i < imgHeight; i++) {
         for (int j = 0; j < imgWidth; j++) {
             cout << i << " " << j << "\n";
             
-            tRef = 0.0f;
             
-            rayHolder->setRay(float(i) + 0.5f, float(j) + 0.5f, float(imgWidth), float(imgHeight), mainCamera);
+            rayHolder->setPixelRay(float(i) + 0.5f, float(j) + 0.5f, float(imgWidth), float(imgHeight), mainCamera);
             
-            //loop thru primitives and make calculations
-            
+            //loop thru primitives and find an intersecting point
             primHolder = NULL;
+            
+            //tuple to hold intersection information
+            //of the form <T VALUE, INTERSECTION_POINT, INTERSECTION_POINT'S NORMAL>
+            get<0>(intersectionTrackerRef) = 0.0f;
+            get<1>(intersectionTrackerRef) = glm::vec3(0.0f,0.0f,0.0f);
+            get<2>(intersectionTrackerRef) = glm::vec3(0.0f,0.0f,0.0f);
+            
             for (vector<Primitive*>::iterator it = primitives->begin(); it != primitives->end(); it++) {
-                float original = tRef;
-                (*it)->calculateIntersection(tRef, rayHolder);
-                if (tRef != original) {
+                
+                float originalT = get<0>(intersectionTrackerRef);
+                (*it)->calculateClosestIntersection(intersectionTrackerRef, rayHolder);
+                if (get<0>(intersectionTrackerRef) != originalT) {
+                    //totalBlocked++;
                     primHolder = (*it);
                 }
+                
                 
             }
         
             
-            //our primHolder wont be NULL if we found a valid intersection
+            //did we intersect and store a valid primitive?
             if (!primHolder) {
+                //totalBlocked++;
                 finalImage[i][j] = glm::vec3(0.0f, 0.0f, 0.0f);
             }
             else {
-                // we know our the exact primitive we've hit, use lighting equation
+                
+                // we know our the exact primitive we've hit, use phong equation, start with ambient and emission terms
                 glm::vec3 finalColor = primHolder->ambient + primHolder->emission;
-                //first, grab the exact intersection
                 
-                glm::vec3 intersectionPoint;
-                
-                //we want the NORMAL of the primitive we've intersected, for SHADOW BIAS
-                glm::vec3 N;
-                
-                if(Sphere * currSphere = dynamic_cast<Sphere*>(primHolder))
-                {
-                    //handles Sphere case, which deals with transformations
-                    //we wanna transform our intersection point of: transformed ray and UNtransformed sphere
-                    //into intersection point of: UNtransformed ray and transformed sphere
-                    glm::vec3 originalStart = rayHolder->rayStart;
-                    glm::vec3 originalVec = rayHolder->rayVec;
-                    
-                    glm::vec4 newStart = glm::inverse(primHolder->transformation) * glm::vec4(rayHolder->rayStart, 1.0f);
-                    glm::vec4 newVec = glm::inverse(primHolder->transformation) * glm::vec4(rayHolder->rayVec, 0.0f);
-                    
-                    rayHolder->rayStart = glm::vec3(newStart.x / newStart.w, newStart.y / newStart.w, newStart.z / newStart.w);
-                    rayHolder->rayVec = glm::vec3(newVec.x, newVec.y, newVec.z);
-                    
-                    glm::vec3 transformedIntersectionPoint = rayHolder->rayStart + t * rayHolder->rayVec;
-                    N = glm::normalize(transformedIntersectionPoint - currSphere->spherePos);
-                    
-                    //now WE transform BACK, equations shown below
-                    
-                    // M * p for point
-                    // inverse(transpose(M)) * N for normal
-                    N = glm::normalize(glm::inverse(glm::transpose(glm::mat3(currSphere->transformation))) * N);
-                    
-                    glm::vec4 intersectionPointHom = primHolder->transformation * glm::vec4(transformedIntersectionPoint, 1.0f);
-                    
-                    intersectionPoint = glm::vec3(intersectionPointHom.x / intersectionPointHom.w, intersectionPointHom.y / intersectionPointHom.w, intersectionPointHom.z / intersectionPointHom.w);
-                    
-                    rayHolder->rayStart = originalStart;
-                    rayHolder->rayVec = originalVec;
-                    
-                    
-                        
-                    //now we have correct intersection point and normal associated with it
-                  
-                }
-                else if(Triangle * currTriangle = dynamic_cast<Triangle*>(primHolder))
-                {
-                    //our triangles are pre transformed, no further calculations
-                    intersectionPoint = rayHolder->rayStart + t * rayHolder->rayVec;
-                    
-                    N = glm::normalize(currTriangle->triangleNorm);
-                    
-                }
-                
+                glm::vec3 intersectionPoint = get<1>(intersectionTrackerRef);
+                glm::vec3 N = get<2>(intersectionTrackerRef);
                 
                 for (vector<Light*>::iterator it = lights->begin(); it != lights->end(); it++) {
                     //incorporates SHADOW BIAS  0.001 * Normal Direction
                     
-                    shadowRayHolder->setShadowRay(intersectionPoint, (*it), N);
-
-                    float currT = 0.0f;
-                    float & currTRef = currT;
-                    
-                    
-                    float lightT = 0.0f;
-                    if (!(*it)->isDirectional) {
-                        lightT = (((*it)->lightPos).x - shadowRayHolder->rayStart.x) / (shadowRayHolder->rayVec).x;
-                    }
-                    
+                    shadowRayHolder->setShadowRay(intersectionPoint , (*it), N);
                     
 
                     
-                    bool foundIntersection = false;
+                    bool lightBlocked = false;
                     for (vector<Primitive*>::iterator it2 = primitives->begin(); it2 != primitives->end(); it2++) {
-                        (*it2)->calculateIntersection(currTRef, shadowRayHolder);
                         
-                        if (currTRef == 0.0f) {
-                            continue;
+                        if ((*it2)->blockingLight((*it), shadowRayHolder)) {
+                            lightBlocked = true;
+                            break;
                         }
-                        if (!(*it)->isDirectional) {
-                            //cout << "WHAT";
-                            if (currTRef < lightT) {
-                                //cout << currTRef << " " << lightT << "\n";
-                                foundIntersection = true;
-                                break;
-                            }
-                        }
-                        else {
-                            if (currTRef != 0.0f) {
-                                foundIntersection = true;
-                                break;
-                            }
-                        }
+                        
                     }
-                    if (foundIntersection) {
-                        //cout<< "WHAT\n";
+                    if (lightBlocked) {
+                        //we don't care, go to the next light!
+                        //totalBlocked++;
                         continue;
                     }
                     else {
-                        //cout << "CALCULATING LIGHTING\n";
+                        
                         glm::vec3 currAttenuation;
                         float r = 0.0f;
                         glm::vec3 L;
@@ -212,10 +160,6 @@ int main(int argc, const char * argv[]) {
                         
                         glm::vec3 rest = lightColor * primHolder->diffuse * glm::max(glm::dot(N, L), 0.0f) + lightColor * primHolder->specular * pow(glm::max(glm::dot(N, H), 0.0f), float(primHolder->shininess));
                         
-                        //float denom = currAttenuation.x + currAttenuation.y * r + currAttenuation.z * pow(r, 2.0f);
-                        
-
-                        //glm::vec3 added = ((*it)->lightColor / denom) * rest;
 
                         finalColor += rest;
                     }
@@ -223,12 +167,9 @@ int main(int argc, const char * argv[]) {
                     
                 }
                 
-                //cout << "FINALCOLOR BEFORE RECURSION: " << finalColor.x << " " << finalColor.y << " " << finalColor.z << "\n";
-                //do a final recursive ray trace, only if specular component is nonzero in some color
                 
                 if (primHolder->specular.x != 0.0f || primHolder->specular.y != 0.0f  || primHolder->specular.z != 0.0f ) {
                     //calculate mirror ray
-
                     glm::vec3 mirrorVec = glm::normalize(rayHolder->rayVec) - 2.0f * glm::dot(glm::normalize(rayHolder->rayVec), N) * N;
                     mirrorVec = glm::normalize(mirrorVec);
                     
@@ -240,11 +181,13 @@ int main(int argc, const char * argv[]) {
                     finalColor = finalColor + recursiveColor;
                 }
                 
-                //cout << "FINALCOLOR AFTER RECURSION: " << finalColor.x << " " << finalColor.y << " " << finalColor.z << "\n\n";
+                
+                
+                
+                
+                //clamping and multiplying so our final color is in the proper range
                 finalColor = glm::vec3(clamp(finalColor.x,0.0f,1.0f), clamp(finalColor.y,0.0f,1.0f), clamp(finalColor.z, 0.0f,1.0f));
                 finalColor = 255.0f * finalColor;
-                
-                //finalColor = glm::vec3(clamp(finalColor.x,0.0f,255.0f), clamp(finalColor.y,0.0f,255.0f), clamp(finalColor.z, 0.0f,255.0f));
                 finalImage[i][j] = finalColor;
                 
             }
@@ -289,6 +232,7 @@ int main(int argc, const char * argv[]) {
         }
         cout << "DONE CREATING FILE\n";
     }
+    cout << totalBlocked << "\n";
     MyFile.close();
     return 0;
 }

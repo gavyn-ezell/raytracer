@@ -1,6 +1,7 @@
 
 #include "Sphere.h"
 #include <algorithm>
+#include <iostream>
 // constructor for sphere
 
 Sphere::Sphere(glm::vec3 inputSpherePos, float radius, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 emission, float shininess, glm::mat4 transformation) {
@@ -15,114 +16,116 @@ Sphere::Sphere(glm::vec3 inputSpherePos, float radius, glm::vec3 ambient, glm::v
 }
 
 
-void Sphere::calculateForT(float a, float b, float c, float discriminant, float &tRef, Ray * currRay) {
+float Sphere::calculateT(float a, float b, float c, float discriminant) {
 
     //float realPart, imaginaryPart;
     float x1, x2;
+    //float result;
     // 2 pos
-    if (discriminant > 0.0f) {
-        x1 = (-b + sqrt(discriminant)) / (2.0f*a);
-        x2 = (-b - sqrt(discriminant)) / (2.0f*a);
-
-        //both positive? choose the smallest one
-        if (x1 > 0.0f && x2 > 0.0f) {
-            //FOR NOW DO NOT CARE ABOUT ACTUAL INTERSECTION POINT, JUST RETURN TRUE
-            float currRoot = std::min(x1, x2);
-        
-            //this currRoot, or t, is in the frame of "transformed Ray" and "untransformed Sphere",
-            //however, we only want to replace t in the "untransformed ray" and "transformed Sphere"
-            
-            //1. convert point into "untransformed ray" and "transformed Sphere" space
-            //2. find t value from "untransformed ray" and "transformed Sphere" space
-            //3. THIS is the t value we want to compare
-            /*
-            glm::vec3 transformedRayPoint = currRay->rayStart + currRoot * currRay->rayVec;
-            
-            glm::vec4 untransformedRayPointHom = this->transformation * glm::vec4(transformedRayPoint, 1.0f);
-            
-            glm::vec3 untransformedRayPoint =  glm::vec3(untransformedRayPointHom.x / untransformedRayPointHom.w,  untransformedRayPointHom.y / untransformedRayPointHom.w, untransformedRayPointHom.z / untransformedRayPointHom.w);
-            */
-            
-            
-            //we havent assigned yet, so assign
-            if (tRef == 0.0f) {
-
-                tRef = currRoot;
-                //primHolder = this;
-            }
-            //we HAVE assigned, check if found t is better
-            else if (tRef > 0.0f && currRoot < tRef) {
-
-                tRef = currRoot;
-                //primHolder = dynamic_cast<Primitive*>(this);
-            }
-            else if (tRef > 0.0f && currRoot > tRef) {
-                //don't reassign
-            }
-            return;
-        }
-        // one pos, one neg
-        else if ((x1 > 0 && x2 < 0) || (x1 < 0 && x2 > 0))  {
-            float currRoot = std::max(x1,x2);
-            
-            //we havent assigned yet, so assign
-            if (tRef == 0.0f) {
-                tRef = currRoot;
-                //primHolder = dynamic_cast<Primitive*>(this);
-            }
-            //we HAVE assigned, check if found t is better
-            else if (tRef > 0.0f && currRoot < tRef) {
-                tRef = currRoot;
-                //primHolder = dynamic_cast<Primitive*>(this);
-            }
-            else if (tRef > 0.0f && currRoot >= tRef) {
-                //don't reassign
-            }
-            return;
-        }
-    }
+    //BELOW ARE ALL IGNORED CASES, WE DONT CARE
+    
     // tangent, ignore
-    else if (discriminant == 0) {
+    if (discriminant == 0) {
         x1 = -b/(2*a);
-        return;
+        return -1.0f;
     }
     //no intersection, ignore
-    else {
-        return;
+    else if (discriminant < 0.0f) {
+        return -1.0f;
     }
-    return;
+    
+    x1 = (-b + sqrt(discriminant)) / (2.0f*a);
+    x2 = (-b - sqrt(discriminant)) / (2.0f*a);
+    //two intersection points, convert to real world and then compare
+    if ((x1 > 0.0f && x2 < 0.0f) || (x1 < 0.0f && x2 > 0.0f)) {
+        return std::max(x1,x2);
+    }
+    if (x1 > 0.0f && x2 > 0.0f) {
+        return std::min(x1,x2);
+    }
+    return -1.0f;
 }
 
 
  // intersection
 
-void Sphere::calculateIntersection(float &tRef , Ray * currRay) {
+void Sphere::calculateClosestIntersection(std::tuple<float, glm::vec3, glm::vec3> &intersectionTrackerRef, Ray * currRay) {
     
+    float previousT = std::get<0>(intersectionTrackerRef);
     //transform ray  by inverse transformation of the sphere FIRST
-    //transform the origin point, 1 as homogenous w
-    glm::vec3 originalRayStart = currRay->rayStart;
-    glm::vec3 originalRayVec = currRay->rayVec;
     
     glm::vec4 newStart = glm::inverse(this->transformation) * glm::vec4(currRay->rayStart, 1.0f);
     glm::vec4 newVec = glm::inverse(this->transformation) * glm::vec4(currRay->rayVec, 0.0f);
     
-    currRay->rayStart = glm::vec3(newStart.x / newStart.w, newStart.y / newStart.w, newStart.z / newStart.w);
-    currRay->rayVec = glm::vec3(newVec.x, newVec.y, newVec.z);
-
+    Ray transformedRay = Ray();
+    transformedRay.rayStart = glm::vec3(newStart.x / newStart.w, newStart.y / newStart.w, newStart.z / newStart.w);
+    transformedRay.rayVec  = glm::vec3(newVec.x, newVec.y, newVec.z);
+    
     float a,b,c, discriminant;
     
-    a = glm::dot(currRay->rayVec, currRay->rayVec);
-    b = glm::dot( currRay->rayVec + currRay->rayVec, currRay->rayStart - this->spherePos);
-    c = glm::dot(currRay->rayStart - this->spherePos, currRay->rayStart - this->spherePos) - pow(this->radius, 2.0f);
+    a = glm::dot(transformedRay.rayVec, transformedRay.rayVec);
+    b = glm::dot(transformedRay.rayVec + transformedRay.rayVec, transformedRay.rayStart - this->spherePos);
+    c = glm::dot(transformedRay.rayStart - this->spherePos, transformedRay.rayStart - this->spherePos) - pow(this->radius, 2.0f);
     discriminant = b*b - 4.0f*a*c;
     
-    calculateForT(a, b, c, discriminant, tRef, currRay);
+    //we have currently grabbed the t value from the transformed Ray to the untransformed sphere
     
-    //put ray back to original form
-    currRay->rayStart = originalRayStart;
-    currRay->rayVec = originalRayVec;
+    float currT = calculateT(a, b, c, discriminant);
+    if (currT > 0.0f) {
+        //we need the original world t, convert this point to REAL point
+        
+        if ((currT < previousT && previousT > 0.0f) || previousT == 0.0f) {
+            //we need the original world t, convert this point to REAL point
+            glm::vec3 transformedPoint = transformedRay.rayStart + currT * transformedRay.rayVec;
+            glm::vec4 homPoint = this->transformation * glm::vec4(transformedPoint, 1.0f);
+            glm::vec3 realPoint = glm::vec3(homPoint.x / homPoint.w,homPoint.y / homPoint.w, homPoint.z / homPoint.w);
+            
+            glm::vec3 transformedNormal = glm::normalize(transformedPoint - this->spherePos);
+            glm::vec3 realNormal = glm::normalize(glm::inverse(glm::transpose(glm::mat3(this->transformation))) * transformedNormal);
+            
+            std::get<0>(intersectionTrackerRef) = currT;
+            
+            std::get<1>(intersectionTrackerRef) = realPoint;
+            std::get<2>(intersectionTrackerRef) = realNormal;
+            return;
+        }
+    }
     return;
+}
+
+bool Sphere::blockingLight(Light * light, Ray * shadowRay) {
     
+    glm::vec4 newStart = glm::inverse(this->transformation) * glm::vec4(shadowRay->rayStart, 1.0f);
+    glm::vec4 newVec = glm::inverse(this->transformation) * glm::vec4(shadowRay->rayVec, 0.0f);
+    
+    Ray transformedRay = Ray();
+    transformedRay.rayStart = glm::vec3(newStart.x / newStart.w, newStart.y / newStart.w, newStart.z / newStart.w);
+    transformedRay.rayVec = glm::vec3(newVec.x, newVec.y, newVec.z);
+    
+    float a,b,c, discriminant;
+    
+    a = glm::dot(transformedRay.rayVec, transformedRay.rayVec);
+    b = glm::dot(transformedRay.rayVec + transformedRay.rayVec, transformedRay.rayStart - this->spherePos);
+    c = glm::dot(transformedRay.rayStart - this->spherePos, transformedRay.rayStart - this->spherePos) - pow(this->radius, 2.0f);
+    discriminant = b*b - 4.0f*a*c;
+    
+    //we have currently grabbed the t value from the transformed Ray to the untransformed sphere
+    float currT = calculateT(a, b, c, discriminant);
+    if (currT > 0.0f) {
+        
+        if (light->isDirectional) {
+            return true;
+        }
+        
+        float lightT = (light->lightPos.x - shadowRay->rayStart.x) / shadowRay->rayVec.x;
+        if (currT <= lightT) {
+            return true;
+        }
+        
+        
+    }
+    return false;
     
 }
+
 Sphere::~Sphere() {};
