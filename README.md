@@ -3,13 +3,13 @@
 
 Ray tracer built in C++.
 
-Final project for CSE 167 Winter 2023, taught by Ravi Ramamoorthi.
-
-Runs through Xcode.
+Runs through Xcode
 
 ## Description
 When run, reads a input file (given as an argument when running) and creates a PPM file from the scene described 
 within the input file. PPM can convert to PNG within OSX, simply change .ppm to .png. 
+
+Additionally incorporates a [**Bounding Volume Hiererarchy**](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy) to accelerate rendering times.
 
 # Input File Format Notes (from assignment specification)
 
