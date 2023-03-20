@@ -24,7 +24,7 @@ bool readvals(std::stringstream &s, const int numvals, float* values)
     return true;
 }
 
-void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, glm::vec3 & attenuationRef, int & maxdepthRef)
+void readfile(std::string filename, int & width, int & height, Camera *mainCamera, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, glm::vec3 & attenuationRef, int & maxdepthRef, std::string & outputRef)
 {
     //starts the readfile
     std::string str, cmd;
@@ -73,14 +73,9 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                     
                 }
                 else if (cmd == "output") {
-                    /*
-                    validinput = readvals(s, 2, values);
-                    
-                    if (validinput) {
-                        width = values[0];
-                        height = values[1];
-                    }
-                    */
+                    std::string outputName;
+                    s >> outputName;
+                    outputRef = outputName;
                 }
                 else if (cmd == "maxdepth") {
                     validinput = readvals(s, 1, values);
@@ -253,17 +248,12 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                 else if (cmd == "translate") {
                     validinput = readvals(s,3,values);
                     if (validinput) {
-                        
-                        // YOUR CODE FOR HW 2 HERE.
-                        // Think about how the transformation stack is affected
-                        // You might want to use helper functions on top of file.
-                        // Also keep in mind what order your matrix is!
+                    
                         
                         glm::mat4 translationMat = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
                                                              0.0f, 1.0f, 0.0f, 0.0f,
                                                              0.0f, 0.0f, 1.0f, 0.0f,
                                                              values[0], values[1], values[2], 1.0f);
-                        //mat4 translateMatrix = Transform::translate(values[0], values[1], values[2]);
                         glm::mat4 &T = transfstack.top();
                         T = T * translationMat;
                         
@@ -273,10 +263,6 @@ void readfile(std::string filename, int & width, int & height, Camera *mainCamer
                     validinput = readvals(s,3,values);
                     if (validinput) {
                         
-                        // YOUR CODE FOR HW 2 HERE.
-                        // Think about how the transformation stack is affected
-                        // You might want to use helper functions on top of file.
-                        // Also keep in mind what order your matrix is!
                         glm::mat4 scaleMat = glm::mat4(values[0],0.0f,0.0f,0.0f,
                                                        0.0f, values[1], 0.0f, 0.0f,
                                                        0.0f, 0.0f, values[2], 0.0f,

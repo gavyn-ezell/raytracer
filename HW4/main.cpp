@@ -18,8 +18,10 @@
 #include "Sphere.h"
 #include "Triangle.h"
 #include "Light.h"
-#include "Camera.h"
 #include "recursion.h"
+
+#include "BVHTree.h"
+#include "BBoxNode.h"
 using namespace std;
 
 Camera *mainCamera = new Camera();
@@ -41,21 +43,14 @@ int &height = imgHeight;
 
 int main(int argc, const char * argv[]) {
     
-     
-    int totalBlocked = 0;
+    std::string output;
+    std::string & outputRef = output;
     string filename = argv[1];
-    
-    readfile(filename, width, height, mainCamera, primitives, lights, attenuationRef, maxdepthRef);
+    readfile(filename, width, height, mainCamera, primitives, lights, attenuationRef, maxdepthRef, outputRef);
 
     glm::vec3 finalImage[imgHeight][imgWidth];
     
     //setting up parameters for intersection testing
-    
-    //this t value keeps track of the lowest t on our cameraRay
-    //we simply want the lowest, non-zero t value
-    //float t;
-    //float &tRef = t;
- 
     //these will simply hold our ray's
     //1. rayHolder holds rays emitted from our camera
     //2. shadowRayHolder will simply hold shadow Rays
@@ -69,7 +64,9 @@ int main(int argc, const char * argv[]) {
     tuple<float, glm::vec3, glm::vec3> intersectionTracker = make_tuple(0.0f, glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f));
     tuple<float, glm::vec3, glm::vec3> &intersectionTrackerRef = intersectionTracker;
     
-    
+    //constructing our BVH Tree
+    BVHTree * sceneTree = new BVHTree(primitives);
+
     
     for (int i = 0; i < imgHeight; i++) {
         for (int j = 0; j < imgWidth; j++) {
@@ -80,6 +77,7 @@ int main(int argc, const char * argv[]) {
             
             //loop thru primitives and find an intersecting point
             primHolder = NULL;
+            Primitive * &primHolderRef = primHolder;
             
             //tuple to hold intersection information
             //of the form <T VALUE, INTERSECTION_POINT, INTERSECTION_POINT'S NORMAL>
@@ -87,22 +85,12 @@ int main(int argc, const char * argv[]) {
             get<1>(intersectionTrackerRef) = glm::vec3(0.0f,0.0f,0.0f);
             get<2>(intersectionTrackerRef) = glm::vec3(0.0f,0.0f,0.0f);
             
-            for (vector<Primitive*>::iterator it = primitives->begin(); it != primitives->end(); it++) {
-                
-                float originalT = get<0>(intersectionTrackerRef);
-                (*it)->calculateClosestIntersection(intersectionTrackerRef, rayHolder);
-                if (get<0>(intersectionTrackerRef) != originalT) {
-                    //totalBlocked++;
-                    primHolder = (*it);
-                }
-                
-                
-            }
-        
+            
+            //use our BVH Tree for faster calculations
+            sceneTree->calculateClosestIntersection(intersectionTrackerRef, rayHolder, primHolderRef);
             
             //did we intersect and store a valid primitive?
             if (!primHolder) {
-                //totalBlocked++;
                 finalImage[i][j] = glm::vec3(0.0f, 0.0f, 0.0f);
             }
             else {
@@ -118,20 +106,12 @@ int main(int argc, const char * argv[]) {
                     
                     shadowRayHolder->setShadowRay(intersectionPoint , (*it), N);
                     
-
+                    //using BVH Tree for shadow ray calculations
+                    bool lightBlocked = sceneTree->testIfBlocked((*it), shadowRayHolder);
+        
                     
-                    bool lightBlocked = false;
-                    for (vector<Primitive*>::iterator it2 = primitives->begin(); it2 != primitives->end(); it2++) {
-                        
-                        if ((*it2)->blockingLight((*it), shadowRayHolder)) {
-                            lightBlocked = true;
-                            break;
-                        }
-                        
-                    }
                     if (lightBlocked) {
                         //we don't care, go to the next light!
-                        //totalBlocked++;
                         continue;
                     }
                     else {
@@ -175,7 +155,7 @@ int main(int argc, const char * argv[]) {
                     
                     mirrorRayHolder->setMirrorRay(shadowRayHolder->rayStart, mirrorVec);
                     
-                    glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(1, mirrorRayHolder, shadowRayHolder, primitives, lights, mainCamera, attenuation, maxdepth);
+                    glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(1, sceneTree, mirrorRayHolder, shadowRayHolder, primitives, lights, mainCamera, attenuation, maxdepth);
                     
                     
                     finalColor = finalColor + recursiveColor;
@@ -196,6 +176,7 @@ int main(int argc, const char * argv[]) {
     
     //DEALLOCATION AND MEMORY CLEANING BEFORE FILE END
     delete mainCamera;
+    delete sceneTree;
 
     if (primitives->size() > 0) {
         for (vector<Primitive*>::iterator it = primitives->begin(); it != primitives->end(); it++) {
@@ -215,7 +196,7 @@ int main(int argc, const char * argv[]) {
     delete mirrorRayHolder;
 
     //ACTUAL PPM CREATION, using final image values, 2d array
-    ofstream MyFile("result.ppm");
+    ofstream MyFile(output);
     if (MyFile.is_open()) {
         MyFile << "P3 " << imgWidth << " " << imgHeight << " 255\n";
         for (int i = 0; i < imgHeight; i++) {
@@ -232,7 +213,6 @@ int main(int argc, const char * argv[]) {
         }
         cout << "DONE CREATING FILE\n";
     }
-    cout << totalBlocked << "\n";
     MyFile.close();
     return 0;
 }

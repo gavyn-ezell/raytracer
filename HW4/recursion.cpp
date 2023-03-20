@@ -7,7 +7,7 @@
 
 #include "recursion.h"
 #include <iostream>
-glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRayHolder, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, Camera * mainCamera, glm::vec3 attenuation, int maxdepth)
+glm::vec3 recursiveTracing(int currdepth, BVHTree * sceneTree, Ray * mirrorRayHolder, Ray * shadowRayHolder, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, Camera * mainCamera, glm::vec3 attenuation, int maxdepth)
 {
 /*
  PRETTY MUCH THE SAME PROCESS AS BEFORE
@@ -20,8 +20,7 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
     }
 
     Primitive * primHolder = NULL;
-    //float t = 0.0f;
-    //float &tRef = t;
+    Primitive * &primHolderRef = primHolder;
 
     std::tuple<float, glm::vec3, glm::vec3> intersectionTracker;
     std::tuple<float, glm::vec3, glm::vec3> &intersectionTrackerRef = intersectionTracker;
@@ -29,6 +28,8 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
     get<1>(intersectionTrackerRef) = glm::vec3(0.0f,0.0f,0.0f);
     get<2>(intersectionTrackerRef) = glm::vec3(0.0f,0.0f,0.0f);
     
+    sceneTree->calculateClosestIntersection(intersectionTrackerRef, mirrorRayHolder, primHolderRef);
+    /*
     for (std::vector<Primitive*>::iterator it = primitives->begin(); it != primitives->end(); it++) {
         
         float originalT = get<0>(intersectionTrackerRef);
@@ -38,6 +39,7 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
         }
         
     }
+    */
     
     if (!primHolder) {
         return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -53,15 +55,7 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
         
         shadowRayHolder->setShadowRay(intersectionPoint, (*it), N);
         
-        bool lightBlocked = false;
-        for (std::vector<Primitive*>::iterator it2 = primitives->begin(); it2 != primitives->end(); it2++) {
-            
-            if ((*it2)->blockingLight((*it), shadowRayHolder)) {
-                lightBlocked = true;
-                break;
-            }
-            
-        }
+        bool lightBlocked = sceneTree->testIfBlocked((*it), shadowRayHolder);
         if (lightBlocked) {
             continue;
         }
@@ -83,7 +77,6 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
             }
             
             H = glm::normalize(L + glm::normalize(mirrorRayHolder->rayStart - shadowRayHolder->rayStart));
-            //H = glm::normalize(L + glm::normalize(mainCamera->cameraPos - shadowRayHolder->rayStart));
             
             float denom = currAttenuation.x + currAttenuation.y * r + currAttenuation.z * pow(r, 2.0f);
             
@@ -98,7 +91,7 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
         
     }
     
-    //do a final recursive ray trace, only if specular component is nonzero in some color
+    //do another recursive ray trace, only if specular component is nonzero in some color
     if (primHolder->specular.x != 0.0f || primHolder->specular.y != 0.0f  || primHolder->specular.z != 0.0f ) {
         //calculate mirror ray
         glm::vec3 mirrorVec = mirrorRayHolder->rayVec - 2.0f * glm::dot(mirrorRayHolder->rayVec, N) * N;
@@ -106,7 +99,7 @@ glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRay
         
         mirrorRayHolder->setMirrorRay(shadowRayHolder->rayStart, mirrorVec);
 
-        glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(currdepth+1, mirrorRayHolder, shadowRayHolder, primitives, lights, mainCamera, attenuation, maxdepth);
+        glm::vec3 recursiveColor = primHolder->specular * recursiveTracing(currdepth+1, sceneTree, mirrorRayHolder, shadowRayHolder, primitives, lights, mainCamera, attenuation, maxdepth);
         
         return finalColor + recursiveColor;
     }

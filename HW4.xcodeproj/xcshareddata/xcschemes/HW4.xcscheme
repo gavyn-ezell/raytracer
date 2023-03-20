@@ -58,12 +58,16 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "scene7.test"
+            argument = "fun.test"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "scene5.test"
+            argument = "scene7.test"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "scene5.test"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "scene6.test"

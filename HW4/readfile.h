@@ -27,5 +27,4 @@
     -Creates Light(s) object via 'new Light()'
 */
 
- //OLD: void readfile(std::string filename, int & width, int & height, Camera * mainCamera, std::vector<Sphere*> *spheres, std::vector<Triangle*> *Triangle);
-void readfile(std::string filename, int & width, int & height, Camera * mainCamera, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, glm::vec3 & attenuationRef, int & maxdepthRef);
+void readfile(std::string filename, int & width, int & height, Camera * mainCamera, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, glm::vec3 & attenuationRef, int & maxdepthRef, std::string & outputRef);

@@ -11,5 +11,6 @@
 #include "Primitive.h"
 #include "Sphere.h"
 #include "Triangle.h"
+#include "BVHTree.h"
 
-glm::vec3 recursiveTracing(int currdepth, Ray * mirrorRayHolder, Ray * shadowRayHolder, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, Camera * mainCamera, glm::vec3 attenuation, int maxdepth);
+glm::vec3 recursiveTracing(int currdepth, BVHTree * sceneTree, Ray * mirrorRayHolder, Ray * shadowRayHolder, std::vector<Primitive*> *primitives, std::vector<Light*> *lights, Camera * mainCamera, glm::vec3 attenuation, int maxdepth);

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		860031C129C102C800A672BC /* recursion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 860031C029C102C800A672BC /* recursion.cpp */; };
 		862AE25C29B42EE40001B6F8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 862AE25B29B42EE40001B6F8 /* main.cpp */; };
+		866CAF8629C65BF2004CD5C4 /* BBoxNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 866CAF8529C65BF2004CD5C4 /* BBoxNode.cpp */; };
+		866CAF8829C66B60004CD5C4 /* BVHTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 866CAF8729C66B60004CD5C4 /* BVHTree.cpp */; };
 		86D844A829BC593500F7AC26 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 86D844A729BC593500F7AC26 /* Light.cpp */; };
 		86EF3CFF29B4951C0025F5B0 /* readfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 86EF3CFE29B4951C0025F5B0 /* readfile.cpp */; };
 		86EF3D0229B515C10025F5B0 /* Sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 86EF3D0029B515C10025F5B0 /* Sphere.cpp */; };
@@ -34,8 +36,10 @@
 		862AE25829B42EE40001B6F8 /* HW4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HW4; sourceTree = BUILT_PRODUCTS_DIR; };
 		862AE25B29B42EE40001B6F8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		862AE26329B432830001B6F8 /* glm */ = {isa = PBXFileReference; lastKnownFileType = folder; name = glm; path = /Users/gavyne/Desktop/CSE_167/HW4/HW4/glm; sourceTree = "<absolute>"; };
-		8639C59529B7F77C00B4FCD7 /* scene1.test */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = scene1.test; sourceTree = "<group>"; };
-		8639C59629B7F77C00B4FCD7 /* scene2.test */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = scene2.test; sourceTree = "<group>"; };
+		866CAF8329C6558D004CD5C4 /* BVHTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BVHTree.h; sourceTree = "<group>"; };
+		866CAF8429C65A30004CD5C4 /* BBoxNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BBoxNode.h; sourceTree = "<group>"; };
+		866CAF8529C65BF2004CD5C4 /* BBoxNode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BBoxNode.cpp; sourceTree = "<group>"; };
+		866CAF8729C66B60004CD5C4 /* BVHTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BVHTree.cpp; sourceTree = "<group>"; };
 		86D0A51229BBDBA1006AF5D9 /* Light.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
 		86D844A729BC593500F7AC26 /* Light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
 		86D844A929BC5F7200F7AC26 /* Primitive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Primitive.h; sourceTree = "<group>"; };
@@ -83,8 +87,6 @@
 		862AE25A29B42EE40001B6F8 /* HW4 */ = {
 			isa = PBXGroup;
 			children = (
-				8639C59529B7F77C00B4FCD7 /* scene1.test */,
-				8639C59629B7F77C00B4FCD7 /* scene2.test */,
 				862AE26329B432830001B6F8 /* glm */,
 				862AE25B29B42EE40001B6F8 /* main.cpp */,
 				86EDFD9729C03A9B00CA84E7 /* recursion.h */,
@@ -102,6 +104,10 @@
 				86D844A729BC593500F7AC26 /* Light.cpp */,
 				86D844A929BC5F7200F7AC26 /* Primitive.h */,
 				860031C029C102C800A672BC /* recursion.cpp */,
+				866CAF8329C6558D004CD5C4 /* BVHTree.h */,
+				866CAF8429C65A30004CD5C4 /* BBoxNode.h */,
+				866CAF8529C65BF2004CD5C4 /* BBoxNode.cpp */,
+				866CAF8729C66B60004CD5C4 /* BVHTree.cpp */,
 			);
 			path = HW4;
 			sourceTree = "<group>";
@@ -174,9 +180,11 @@
 				86D844A829BC593500F7AC26 /* Light.cpp in Sources */,
 				86EF3D0B29B53D960025F5B0 /* Camera.cpp in Sources */,
 				86EF3CFF29B4951C0025F5B0 /* readfile.cpp in Sources */,
+				866CAF8829C66B60004CD5C4 /* BVHTree.cpp in Sources */,
 				86EF3D1329B5B74D0025F5B0 /* Triangle.cpp in Sources */,
 				86EF3D0F29B59C950025F5B0 /* Ray.cpp in Sources */,
 				86EF3D0229B515C10025F5B0 /* Sphere.cpp in Sources */,
+				866CAF8629C65BF2004CD5C4 /* BBoxNode.cpp in Sources */,
 				862AE25C29B42EE40001B6F8 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
