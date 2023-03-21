@@ -1,0 +1,16 @@
+
+COMPILATION INSTRUCTIONS:
+- Open Xcode project file
+- Go to Product > Scheme > Edit Scheme > Run > Options
+- Set working directory to be your own computer's path to the HW4 folder (the folder that is in the SAME directory as the .xcodeproj file, not the parent HW4 folder)
+- Run code from there
+
+- If you have an older Mac, Xcode might give error saying to set deployment type to older version, follow those instructions if error occurs
+
+If you want to set the command line argument to a different scene:
+- Product > Scheme > Edit Scheme > Run > Arguments
+- From there, set your argument file (scene1.test for example)
+
+
+
+
