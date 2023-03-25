@@ -69,9 +69,10 @@ int main(int argc, const char *argv[])
 
     for (int i = 0; i < imgHeight; i++)
     {
+        cout << i << "\n";
         for (int j = 0; j < imgWidth; j++)
         {
-            cout << i << " " << j << "\n";
+            // cout << i << " " << j << "\n";
 
             rayHolder->setPixelRay(float(i) + 0.5f, float(j) + 0.5f, float(imgWidth), float(imgHeight), mainCamera);
 
@@ -91,7 +92,9 @@ int main(int argc, const char *argv[])
             // did we intersect and store a valid primitive?
             if (!primHolder)
             {
-                finalImage[i][j] = glm::vec3(0.0f, 0.0f, 0.0f);
+                // cout << "MISS\n";
+                finalImage[i][j] = glm::vec3(208.0f, 239.0f, 255.0f);
+                // finalImage[i][j] = glm::vec3(0.0f, 0.0f, 0.0f);
             }
             else
             {

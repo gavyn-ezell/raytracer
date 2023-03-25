@@ -5,12 +5,22 @@ Ray tracer built in C++.
 
 ## Description
 When run, reads a input file (given as an argument when running) and creates a PNG file of the scene described by the input file. 
-Built on Mac/OSX, compilation instructions are contained within the instructions.txt file.
+Simply use the makefile to compile code, then in terminal type "./raytrace [some scene file]" to create your render. 
 
 
-Additionally incorporates a [**Bounding Volume Hiererarchy**](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy) to accelerate rendering times.
+Follows standard Phong shading, additionally incorporates a [**Bounding Volume Hiererarchy**](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy) to accelerate rendering times. 
 
-# Input File Format Notes
+The objparse directory, contains a two python scripts.
+
+**1. random_sphere_scene.py**
+
+Generates a random scene file for testing/fun
+
+**2. objparse.py**
+
+Translates an obj file into readable format for the main raytracer. Result gained from objparse.py is not immediately readable by main raytracer (only converts triangle information), needs some manual additions for overall scene description at top of the resultant file. Use input file format notes below as a guideline.
+
+## Input File Format Notes
 
 The input file consists of a sequence of lines, each of which has a command. For examples and clarifications, see the example input files. The lines have the following form:
 
