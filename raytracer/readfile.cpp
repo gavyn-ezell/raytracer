@@ -1,5 +1,6 @@
 //
 //  readfile.cpp
+//  reafile structured around CSE 167 HW2
 //  HW4
 //
 #include "readfile.h"
@@ -11,7 +12,6 @@
 #include "glm/glm.hpp"
 
 // Function to read the input data values
-// Use is optional, but should be very helpful in parsing.
 bool readvals(std::stringstream &s, const int numvals, float *values)
 {
     for (int i = 0; i < numvals; i++)
@@ -39,7 +39,12 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
     glm::vec3 runningEmission = glm::vec3(0.0f, 0.0f, 0.0f);
     float runningShininess = 0.0f;
 
+    /*
     std::vector<glm::vec3> vertices = {};
+    std::vector<glm::vec3> vertexNormals = {};
+    */
+    std::vector<glm::vec3> *vertices = new std::vector<glm::vec3>();
+    std::vector<glm::vec3> *vertexNormals = new std::vector<glm::vec3>();
 
     in.open(filename);
     if (!in.is_open())
@@ -62,9 +67,7 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
 
                 std::stringstream s(str);
                 s >> cmd;
-                // int i;
-                float values[10]; // Position and color for light, colors for others
-                // Up to 10 params for cameras.
+                float values[10];
                 bool validinput; // Validity of input
 
                 // Process the light, add it to database.
@@ -130,12 +133,6 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
                         attenuationRef = glm::vec3(float(values[0]), float(values[1]), float(values[2]));
                     }
                 }
-
-                // Material Commands
-                // Ambient, diffuse, specular, shininess properties for each object.
-                // Filling this in is pretty straightforward, so I've left it in
-                // the skeleton, also as a hint of how to do the more complex ones.
-                // Note that no transforms/stacks are applied to the colors.
 
                 else if (cmd == "ambient")
                 {
@@ -208,18 +205,8 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
                     }
                 }
 
-                // I've left the code for loading objects in the skeleton, so
-                // you can get a sense of how this works.
-                // Also look at demo.txt to get a sense of why things are done this way.
                 else if (cmd == "sphere")
                 {
-                    /*
-                     if (numobjects == maxobjects) { // No more objects
-                     cerr << "Reached Maximum Number of Objects " << numobjects << " Will ignore further objects\n";
-                     }
-
-                     else {
-                    */
                     validinput = readvals(s, 4, values);
                     if (validinput)
                     {
@@ -242,7 +229,16 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
                     validinput = readvals(s, 3, values);
                     if (validinput)
                     {
-                        vertices.push_back(glm::vec3(double(values[0]), double(values[1]), double(values[2])));
+                        vertices->push_back(glm::vec3(float(values[0]), float(values[1]), float(values[2])));
+                    }
+                }
+                else if (cmd == "vn")
+                {
+                    validinput = readvals(s, 3, values);
+
+                    if (validinput)
+                    {
+                        vertexNormals->push_back(glm::vec3(float(values[0]), float(values[1]), float(values[2])));
                     }
                 }
                 else if (cmd == "tri")
@@ -253,9 +249,9 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
                     {
 
                         // set up vertices in homogenous
-                        glm::vec4 vA = glm::vec4(*(vertices.begin() + values[0]), 1.0f);
-                        glm::vec4 vB = glm::vec4(*(vertices.begin() + values[1]), 1.0f);
-                        glm::vec4 vC = glm::vec4(*(vertices.begin() + values[2]), 1.0f);
+                        glm::vec4 vA = glm::vec4(*(vertices->begin() + values[0]), 1.0f);
+                        glm::vec4 vB = glm::vec4(*(vertices->begin() + values[1]), 1.0f);
+                        glm::vec4 vC = glm::vec4(*(vertices->begin() + values[2]), 1.0f);
 
                         vA = transfstack.top() * vA;
                         vB = transfstack.top() * vB;
@@ -271,22 +267,35 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
                         primitives->push_back(newTriangle);
                     }
                 }
-                else if (cmd == "f")
+                else if (cmd == "trinorm")
                 {
-                    validinput = readvals(s, 4, values);
+
+                    validinput = readvals(s, 6, values);
+
                     if (validinput)
                     {
-                        glm::vec3 vA = *(vertices.begin() + values[0]);
-                        glm::vec3 vB = *(vertices.begin() + values[1]);
-                        glm::vec3 vC = *(vertices.begin() + values[2]);
-                        Triangle *triangle1 = new Triangle(vA, vB, vC);
-                        primitives->push_back(triangle1);
 
-                        vA = *(vertices.begin() + values[0]);
-                        vB = *(vertices.begin() + values[2]);
-                        vC = *(vertices.begin() + values[3]);
-                        Triangle *triangle2 = new Triangle(vA, vB, vC);
-                        primitives->push_back(triangle2);
+                        glm::vec4 vA = glm::vec4(*(vertices->begin() + values[0]), 1.0f);
+                        glm::vec4 vB = glm::vec4(*(vertices->begin() + values[1]), 1.0f);
+                        glm::vec4 vC = glm::vec4(*(vertices->begin() + values[2]), 1.0f);
+
+                        vA = transfstack.top() * vA;
+                        vB = transfstack.top() * vB;
+                        vC = transfstack.top() * vC;
+
+                        glm::vec3 finalA = glm::vec3(vA.x / vA.w, vA.y / vA.w, vA.z / vA.w);
+                        glm::vec3 finalB = glm::vec3(vB.x / vB.w, vB.y / vB.w, vB.z / vB.w);
+                        glm::vec3 finalC = glm::vec3(vC.x / vC.w, vC.y / vC.w, vC.z / vC.w);
+
+                        glm::vec3 vANorm = glm::normalize(glm::vec3(*(vertexNormals->begin() + values[3])));
+                        glm::vec3 vBNorm = glm::normalize(glm::vec3(*(vertexNormals->begin() + values[4])));
+                        glm::vec3 vCNorm = glm::normalize(glm::vec3(*(vertexNormals->begin() + values[5])));
+
+                        Primitive *newTriangle = new Triangle(finalA, finalB, finalC,
+                                                              runningAmbient, runningDiffuse, runningSpecular, runningEmission, runningShininess, transfstack.top(),
+                                                              vANorm, vBNorm, vCNorm);
+
+                        primitives->push_back(newTriangle);
                     }
                 }
 
@@ -374,6 +383,8 @@ void readfile(std::string filename, int &width, int &height, Camera *mainCamera,
         }
         std::cout << "DONE READING FILE\n";
         in.close();
-        return;
     }
+    delete vertices;
+    delete vertexNormals;
+    return;
 }

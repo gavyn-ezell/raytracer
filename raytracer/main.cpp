@@ -1,5 +1,5 @@
 //
-// RAY TRACER ASSIGNMENT MAIN FILE
+// RAY TRACER MAIN FILE
 //
 
 #include <iostream>
@@ -72,7 +72,6 @@ int main(int argc, const char *argv[])
         cout << i << "\n";
         for (int j = 0; j < imgWidth; j++)
         {
-            // cout << i << " " << j << "\n";
 
             rayHolder->setPixelRay(float(i) + 0.5f, float(j) + 0.5f, float(imgWidth), float(imgHeight), mainCamera);
 
@@ -92,13 +91,16 @@ int main(int argc, const char *argv[])
             // did we intersect and store a valid primitive?
             if (!primHolder)
             {
+                // inalImage[i][j] = glm::vec3(194.0f, 178.0f, 128.0f);
+                //  finalImage[i][j] = glm::vec3(210.0f, 239.0f, 255.0f);
                 // cout << "MISS\n";
-                finalImage[i][j] = glm::vec3(208.0f, 239.0f, 255.0f);
-                // finalImage[i][j] = glm::vec3(0.0f, 0.0f, 0.0f);
+                finalImage[i][j] = glm::vec3(0.0f, 0.0f, 0.0f);
             }
             else
             {
-
+                // cout << "HIT\n";
+                // finalImage[i][j] = glm::vec3(170.0f, 170.0f, 170.0f);
+                // continue;
                 // we know our the exact primitive we've hit, use phong equation, start with ambient and emission terms
                 glm::vec3 finalColor = primHolder->ambient + primHolder->emission;
 

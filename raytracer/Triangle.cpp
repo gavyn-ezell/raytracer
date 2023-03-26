@@ -10,8 +10,10 @@ Triangle::Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC, glm::vec3 ambient, 
     this->vA = vA;
     this->vB = vB;
     this->vC = vC;
-    this->triangleNorm = glm::normalize(glm::cross(vB - vA, vC - vA));
-    // this->triangleNorm = glm::normalize(glm::cross(vC - vA, vB-vA));
+    this->faceNorm = glm::normalize(glm::cross(vB - vA, vC - vA));
+    this->vANorm = glm::normalize(glm::cross(vB - vA, vC - vA));
+    this->vBNorm = glm::normalize(glm::cross(vB - vA, vC - vA));
+    this->vCNorm = glm::normalize(glm::cross(vB - vA, vC - vA));
 
     this->ambient = ambient;
     this->diffuse = diffuse;
@@ -20,27 +22,41 @@ Triangle::Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC, glm::vec3 ambient, 
     this->shininess = shininess;
     this->transformation = transformation;
 }
-Triangle::Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC)
+
+Triangle::Triangle(glm::vec3 vA, glm::vec3 vB, glm::vec3 vC,
+                   glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular,
+                   glm::vec3 emission, float shininess, glm::mat4 transformation,
+                   glm::vec3 vANorm, glm::vec3 vBNorm, glm::vec3 vCNorm)
 {
+    // calculate normal given A, B, C
     this->vA = vA;
     this->vB = vB;
     this->vC = vC;
+    this->faceNorm = glm::normalize(glm::cross(vB - vA, vC - vA));
+    this->vANorm = vANorm;
+    this->vBNorm = vBNorm;
+    this->vCNorm = vCNorm;
 
-    this->triangleNorm = glm::normalize(glm::cross(vB - vA, vC - vA));
+    this->ambient = ambient;
+    this->diffuse = diffuse;
+    this->specular = specular;
+    this->emission = emission;
+    this->shininess = shininess;
+    this->transformation = transformation;
 }
 
 void Triangle::calculateClosestIntersection(std::tuple<float, glm::vec3, glm::vec3> &intersectionTrackerRef, Ray *currRay)
 {
 
     float previousT = std::get<0>(intersectionTrackerRef);
-    if (glm::dot(currRay->rayVec, this->triangleNorm) == 0.0f)
+    if (glm::dot(currRay->rayVec, this->faceNorm) == 0.0f)
     {
         // no intersection to plane, just return, without changing tuple
         return;
     }
     // intersection exists. is it in triangle though?
 
-    float currT = (glm::dot(this->vA, this->triangleNorm) - glm::dot(currRay->rayStart, this->triangleNorm)) / glm::dot(currRay->rayVec, this->triangleNorm);
+    float currT = (glm::dot(this->vA, this->faceNorm) - glm::dot(currRay->rayStart, this->faceNorm)) / glm::dot(currRay->rayVec, this->faceNorm);
 
     // TWO cases where we dont care about this point of intersection to the plane
     // 1. our t value to the plane is negative, we don't care
@@ -82,11 +98,13 @@ void Triangle::calculateClosestIntersection(std::tuple<float, glm::vec3, glm::ve
             {
 
                 glm::vec3 intersectionPoint = currRay->rayStart + currT * currRay->rayVec;
-                glm::vec3 normal = glm::normalize(this->triangleNorm);
 
                 std::get<0>(intersectionTrackerRef) = currT;
                 std::get<1>(intersectionTrackerRef) = intersectionPoint;
-                std::get<2>(intersectionTrackerRef) = normal;
+
+                // this below only gives the face normal, but we want to incorporate interpolated normals
+                glm::vec3 normal = alpha * this->vANorm + beta * this->vBNorm + gamma * vCNorm;
+                std::get<2>(intersectionTrackerRef) = glm::normalize(normal);
                 return;
             }
         }
@@ -95,14 +113,14 @@ void Triangle::calculateClosestIntersection(std::tuple<float, glm::vec3, glm::ve
 }
 bool Triangle::blockingLight(Light *light, Ray *shadowRay)
 {
-    if (glm::dot(shadowRay->rayVec, this->triangleNorm) == 0.0f)
+    if (glm::dot(shadowRay->rayVec, this->faceNorm) == 0.0f)
     {
         // no intersection to plane, just return false;
         return false;
     }
 
     // grab the exact t value where we hit the plane
-    float currT = (glm::dot(this->vA, this->triangleNorm) - glm::dot(shadowRay->rayStart, this->triangleNorm)) / glm::dot(shadowRay->rayVec, this->triangleNorm);
+    float currT = (glm::dot(this->vA, this->faceNorm) - glm::dot(shadowRay->rayStart, this->faceNorm)) / glm::dot(shadowRay->rayVec, this->faceNorm);
     if (currT <= 0.0f)
     {
         return false;

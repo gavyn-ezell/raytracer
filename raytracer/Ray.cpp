@@ -2,7 +2,6 @@
 //  Ray.cpp
 //  HW4
 //
-//
 #include "Ray.h"
 Ray::Ray()
 {
@@ -11,7 +10,7 @@ Ray::Ray()
 void Ray::setShadowRay(glm::vec3 intersectionPoint, Light *light, glm::vec3 N)
 {
     // make sure to add SHADOW BIAS
-    this->rayStart = intersectionPoint + 0.01f * N;
+    this->rayStart = intersectionPoint + 0.001f * N;
     if (light->isDirectional)
     {
         this->rayVec = glm::normalize(light->lightPos);

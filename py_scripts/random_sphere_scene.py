@@ -14,22 +14,12 @@ file1 = open("simple.txt", "a")
 
 file1.write("size 800 600\n")
 file1.write("output simple.png\n")
-file1.write("maxdepth 2\n")
+file1.write("maxdepth 3\n")
 file1.write("camera 0 0 75 0 0 0 0 1 0 60\n")
-file1.write("directional 25 0 75 1 1 1\n")
-"""
-file1.write("ambient 1 1 1\n")
-file1.write("v -200 -200 -20\n")
-file1.write("v 200 -200 -20\n")
-file1.write("v 200 200 -20\n")
-file1.write("v -200 200 -20\n")
-file1.write("tri 0 1 2\n")
-file1.write("tri 0 2 3\n")
+# file1.write("point 25 0 75 1 1 1\n")
+file1.write("point 25 0 75 1 1 1\n")
 
-file1.write("ambient 0 0 0\n")
-file1.write("diffuse 0 0 0\n")
-file1.write("emission 0 0 0\n")
-"""
+
 file1.write("shininess 20\n\n")
 
 
@@ -49,13 +39,13 @@ for i in range(300):
     g = colors[colorIndex][1]
     b = colors[colorIndex][2]
     # line = "ambient {} {} {}".format(r * 0.25, g * 0.25, b * 0.25)
-    if (random.randint(1, 10) < 7):
+    if (random.randint(1, 10) < 11):
         line = "specular 0 0 0\n"
     else:
-        line = "specular 0.15 0.15 0.15\n"
-        r = r * 0.7
-        g *= 0.7
-        b *= 0.7
+        line = "specular 0.1 0.1 0.1\n"
+        r = r * 0.5
+        g *= 0.5
+        b *= 0.5
     file1.write(line)
     line = "diffuse {} {} {}\n".format(r*1.3, g*1.3, b*1.3)
     file1.write(line)

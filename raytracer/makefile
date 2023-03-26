@@ -32,4 +32,4 @@ BVHTree.o: BVHTree.cpp
 	g++ -std=c++17 -w -c BVHTree.cpp
 
 clean:
-	rm *.o output
+	rm *.o raytrace
