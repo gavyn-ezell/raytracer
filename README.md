@@ -3,6 +3,9 @@
 
 Ray tracer built in C++.
 
+![alt text](https://github.com/gavyn-ezell/raytracer/blob/main/renders/luckycat.png)
+![alt text](https://github.com/gavyn-ezell/raytracer/blob/main/renders/robot.png)
+
 ## Description
 When run, reads a input file (given as an argument when running) and creates a PNG file of the scene described by the input file. 
 Simply use the makefile to compile code, then in terminal type "./raytrace [some scene file]" to create your render. 
